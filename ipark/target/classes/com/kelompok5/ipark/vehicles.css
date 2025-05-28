@@ -15,3 +15,46 @@
     -fx-background-size: cover;
     -fx-background-position: center center;
 }
+
+/* Background & corner styling for the TableView */
+.table-view {
+    -fx-background-color: #242424;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-padding: 10;
+    -fx-opacity: 90%;
+}
+
+
+.table-view .column-header .label {
+    -fx-text-fill: white; /* Change to your desired color */
+}
+
+.table-view .column-header {
+    -fx-background-color: #242424;
+}
+
+.table-column {
+    -fx-font-family: "Barlow Condensed";
+}
+
+.button.add-button {
+    -fx-background-image: url("ic_add.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: left center;
+    -fx-background-size: 20px 20px;
+    -fx-font-family: "Barlow Condensed";
+    -fx-font-size: 24px;
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 0 0 0 24; /* pushes text to the right */
+}
+
+.button {
+    -fx-background-color: #010002; 
+    -fx-background-radius: 20; 
+    -fx-text-fill: #FFFFFF;
+    -fx-opacity: 80%;
+    -fx-font-size: 20px;
+    -fx-font-family: "Barlow Condensed";
+}

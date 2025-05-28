@@ -20,11 +20,6 @@ public class MainController {
     }
 
     @FXML
-    private void backToMain() throws IOException {
-        App.setRoot("main_scene");
-    }
-
-    @FXML
     private void parklocsOption() throws IOException {
         App.setRoot("parklocs_scene");
     }
