@@ -1,0 +1,25 @@
+@font-face {
+    font-family: "Barlow Condensed";
+    src: url("BarlowCondensed-Regular.ttf");
+}
+
+#secondarylabel {
+    -fx-font-size: 30px; 
+    -fx-text-fill: #FFFFFF; 
+    -fx-font-family: "Barlow Condensed";
+}
+
+.button {
+    -fx-background-color: #010002; 
+    -fx-background-radius: 20; 
+    -fx-text-fill: #FFFFFF;
+    -fx-opacity: 80%;
+    -fx-font-size: 20px;
+    -fx-font-family: "Barlow Condensed";
+}
+.root {
+    -fx-background-image: url("main_bg.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}

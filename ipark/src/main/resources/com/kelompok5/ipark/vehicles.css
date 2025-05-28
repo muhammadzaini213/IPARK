@@ -1,0 +1,17 @@
+@font-face {
+    font-family: "Barlow Condensed";
+    src: url("BarlowCondensed-Regular.ttf");
+}
+
+#secondarylabel {
+    -fx-font-size: 30px; 
+    -fx-text-fill: #FFFFFF; 
+    -fx-font-family: "Barlow Condensed";
+}
+
+.root {
+    -fx-background-image: url("vehicles_bg.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
