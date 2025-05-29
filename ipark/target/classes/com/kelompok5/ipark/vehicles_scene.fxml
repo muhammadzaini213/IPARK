@@ -14,18 +14,18 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.kelompok5.ipark.VehiclesController">
    <children>
-    <Label fx:id="secondarylabel" text="ATUR JENIS KENDARAAN"/>
+    <Label fx:id="secondarylabel" text="MANAJEMEN JENIS KENDARAAN"/>
 
 <HBox alignment="CENTER">
     <VBox alignment="TOP_LEFT" spacing="10">
-<Button text="TAMBAHKAN" styleClass="add-button" prefWidth="150" prefHeight="20"/>
+<Button fx:id="addBtn" text="TAMBAHKAN" styleClass="add-button" prefWidth="150" prefHeight="20" onAction="#addForm"/>
         <TableView fx:id="vehicleTable" prefWidth="900" maxWidth="900">
-            <columns>
-                <TableColumn fx:id="colPlate" text="Opsi" prefWidth="50" />
-                <TableColumn fx:id="colPlate" text="Nama" prefWidth="425" />
-                <TableColumn fx:id="colType" text="Tipe Kendaraan" prefWidth="425" />
-            </columns>
-        </TableView>
+    <columns>
+        <TableColumn fx:id="colName" text="Nama" prefWidth="450" />
+        <TableColumn fx:id="colType" text="Tipe Kendaraan" prefWidth="450" />
+    </columns>
+</TableView>
+
     </VBox>
 </HBox>
 

@@ -16,27 +16,59 @@
     -fx-background-position: center center;
 }
 
-/* Background & corner styling for the TableView */
+/* Make the TableView background and border dark */
 .table-view {
     -fx-background-color: #242424;
+    -fx-control-inner-background: #242424; /* main fix */
     -fx-background-radius: 20;
     -fx-border-radius: 20;
     -fx-padding: 10;
     -fx-opacity: 90%;
 }
 
+/* Make the table header text and background dark */
+.table-view .column-header {
+    -fx-background-color: #1e1e1e;
+}
 
 .table-view .column-header .label {
-    -fx-text-fill: white; /* Change to your desired color */
+    -fx-text-fill: white;
 }
 
-.table-view .column-header {
+/* Style each table cell background and text */
+.table-row-cell {
     -fx-background-color: #242424;
+    -fx-text-fill: white;
 }
 
-.table-column {
+.table-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
     -fx-font-family: "Barlow Condensed";
 }
+
+.table-row-cell:filled:selected, .table-row-cell:focused:selected {
+    -fx-background-color: transparent;
+}
+
+.context-menu {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-border-color: #444;
+}
+
+.menu-item {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.table-view .scroll-bar:vertical,
+.table-view .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
 
 .button.add-button {
     -fx-background-image: url("ic_add.png");

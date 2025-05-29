@@ -4,3 +4,68 @@
     -fx-background-size: cover;
     -fx-background-position: center center;
 }
+
+@font-face {
+    font-family: "Barlow Condensed";
+    src: url("BarlowCondensed-Regular.ttf");
+}
+
+#secondarylabel {
+    -fx-font-size: 30px; 
+    -fx-text-fill: #FFFFFF; 
+    -fx-font-family: "Barlow Condensed";
+}
+
+#location_name {
+    -fx-font-size: 20px; 
+    -fx-text-fill: #FFFFFF; 
+    -fx-font-family: "Barlow Condensed";
+    -fx-background-color: #620505;
+    -fx-border-color: #B31515;
+    -fx-border-width: 2px;
+    -fx-padding: 10px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+}
+
+* {
+    -fx-background-insets: 0;
+    -fx-background: transparent;
+}
+
+
+#locationImage {
+    -fx-background-color: #620505; 
+    -fx-border-color: #B31515;
+    -fx-border-width: 2px;
+    -fx-background-image: url("main_bg.png"); /* top image layer */
+    -fx-background-repeat: no-repeat;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-background-size: 90% 90%, cover; /* image, background */
+    -fx-background-position: center center;
+    -fx-background-insets: 0;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-opacity: 0; /* makes the scrollbar itself invisible */
+}
+
+.button {
+    -fx-background-color: #620505; 
+    -fx-background-radius: 20; 
+    -fx-text-fill: white;
+    -fx-opacity: 80%;
+    -fx-font-size: 20px;
+    -fx-font-family: "Barlow Condensed";
+}

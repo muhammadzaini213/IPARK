@@ -14,7 +14,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.kelompok5.ipark.TariffsController">
    <children>
-    <Label fx:id="secondarylabel" text="ATUR TARIF"/>
+    <Label fx:id="secondarylabel" text="MANAJEMEN TARIF"/>
 
 <HBox alignment="CENTER">
     <VBox alignment="TOP_LEFT" spacing="10">
