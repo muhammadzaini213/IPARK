@@ -28,12 +28,14 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ResourceBundle;
 
-import com.kelompok5.ipark.vehicleScene.Bicycle;
-import com.kelompok5.ipark.vehicleScene.Car;
-import com.kelompok5.ipark.vehicleScene.CustomVehicle;
-import com.kelompok5.ipark.vehicleScene.MotorCycle;
-import com.kelompok5.ipark.vehicleScene.Vehicle;
-import com.kelompok5.ipark.vehicleScene.VehicleModel;
+import com.kelompok5.ipark.utils.MemoryHelper;
+import com.kelompok5.ipark.utils.Statics;
+import com.kelompok5.ipark.vehicle.Bicycle;
+import com.kelompok5.ipark.vehicle.Car;
+import com.kelompok5.ipark.vehicle.CustomVehicle;
+import com.kelompok5.ipark.vehicle.MotorCycle;
+import com.kelompok5.ipark.vehicle.Vehicle;
+import com.kelompok5.ipark.vehicle.VehicleModel;
 
 public class VehicleController implements MemoryHelper, Initializable {
 
@@ -71,7 +73,7 @@ public class VehicleController implements MemoryHelper, Initializable {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(pragmaQuery);
 
-            car = new Car("Mobil sandar", "Mobil");
+            car = new Car("Mobil Standar", "Mobil");
             motorCycle = new MotorCycle("Motor Standar", "Motor");
             bicycle = new Bicycle("Sepeda Standar", "Sepeda");
             Vehicle[] vehicle = { car, motorCycle, bicycle };
@@ -204,11 +206,6 @@ public class VehicleController implements MemoryHelper, Initializable {
         vehicleTable.setItems(data);
     }
 
-    @Override
-    public void showData() {
-        throw new UnsupportedOperationException("Unimplemented method 'showData'");
-    }
-
     public void setVehicleData(VehicleModel vehicle) {
         nameField.setText(vehicle.getName());
         typeField.setText(vehicle.getType());
@@ -327,6 +324,7 @@ public class VehicleController implements MemoryHelper, Initializable {
                     } else {
                         new CustomVehicle().deleteVehicle(selectedVehicle);
                     }
+                    loadData();
                 }
             });
 

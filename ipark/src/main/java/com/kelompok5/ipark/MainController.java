@@ -31,11 +31,11 @@ public class MainController {
 
     @FXML
     private void tariffsOption() throws IOException {
-        App.setRoot("tariffs_scene");
+        App.setRoot("tariff_scene");
     }
     
     @FXML
     private void vehiclesOption() throws IOException {
-        App.setRoot("vehicles_scene");
+        App.setRoot("vehicle_scene");
     }
 }
