@@ -1,4 +1,4 @@
-package com.kelompok5.ipark.VehicleScene;
+package com.kelompok5.ipark.vehicleScene;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

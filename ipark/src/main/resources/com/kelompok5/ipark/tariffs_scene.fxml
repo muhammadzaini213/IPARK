@@ -21,11 +21,10 @@
 <Button text="TAMBAHKAN" styleClass="add-button" prefWidth="150" prefHeight="20"/>
         <TableView fx:id="tariffTable" prefWidth="950" maxWidth="950">
             <columns>
-                <TableColumn fx:id="colPlate" text="Opsi" prefWidth="50" />
-                <TableColumn fx:id="colPlate" text="Nama" prefWidth="225" />
-                <TableColumn fx:id="colType" text="Tarif Mobil" prefWidth="225" />
-                <TableColumn fx:id="colPlate" text="Tarif Motor" prefWidth="225" />
-                <TableColumn fx:id="colPlate" text="Tarif Sepeda" prefWidth="225" />
+                <TableColumn fx:id="colPlate" text="Nama" prefWidth="250" />
+                <TableColumn fx:id="colType" text="Tarif Mobil" prefWidth="250" />
+                <TableColumn fx:id="colPlate" text="Tarif Motor" prefWidth="250" />
+                <TableColumn fx:id="colPlate" text="Tarif Sepeda" prefWidth="250" />
             </columns>
         </TableView>
     </VBox>

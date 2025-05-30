@@ -1,4 +1,4 @@
-package com.kelompok5.ipark.VehicleScene;
+package com.kelompok5.ipark.vehicleScene;
 
 public abstract class Vehicle {
         public abstract void addVehicle(String name);

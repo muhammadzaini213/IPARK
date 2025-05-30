@@ -1,6 +1,5 @@
 package com.kelompok5.ipark;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,16 +28,14 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ResourceBundle;
 
-import com.kelompok5.ipark.VehicleScene.Bicycle;
-import com.kelompok5.ipark.VehicleScene.Car;
-import com.kelompok5.ipark.VehicleScene.CustomVehicle;
-import com.kelompok5.ipark.VehicleScene.MotorCycle;
-import com.kelompok5.ipark.VehicleScene.Vehicle;
-import com.kelompok5.ipark.VehicleScene.VehicleModel;
+import com.kelompok5.ipark.vehicleScene.Bicycle;
+import com.kelompok5.ipark.vehicleScene.Car;
+import com.kelompok5.ipark.vehicleScene.CustomVehicle;
+import com.kelompok5.ipark.vehicleScene.MotorCycle;
+import com.kelompok5.ipark.vehicleScene.Vehicle;
+import com.kelompok5.ipark.vehicleScene.VehicleModel;
 
-public class VehiclesController implements MemoryHelper, Initializable {
-
-    public static String jdbcUrl = "jdbc:sqlite:/D:\\Program Files\\SQLITE\\sqlite-tools-win-x64-3490200\\iparkdb.db";
+public class VehicleController implements MemoryHelper, Initializable {
 
     private Car car;
     private MotorCycle motorCycle;
@@ -68,7 +65,7 @@ public class VehiclesController implements MemoryHelper, Initializable {
 
     @Override
     public void initializeDB() {
-        try (Connection connection = DriverManager.getConnection(jdbcUrl)) {
+        try (Connection connection = DriverManager.getConnection(Statics.jdbcUrl)) {
 
             String pragmaQuery = "PRAGMA table_info(vehicles)";
             Statement statement = connection.createStatement();
@@ -165,7 +162,7 @@ public class VehiclesController implements MemoryHelper, Initializable {
             Parent root = loader.load();
 
             // Get the controller for the edit form
-            VehiclesController controller = loader.getController();
+            VehicleController controller = loader.getController();
 
             // Inject vehicle data into text fields in edit form
             controller.setVehicleData(vehicle);
@@ -189,7 +186,7 @@ public class VehiclesController implements MemoryHelper, Initializable {
     public void loadData() {
         ObservableList<VehicleModel> data = FXCollections.observableArrayList();
 
-        try (Connection conn = DriverManager.getConnection(jdbcUrl);
+        try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl);
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery("SELECT id, name, type FROM vehicles")) {
 
