@@ -1,0 +1,40 @@
+.root {
+    -fx-background-image: url("bg_main.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    src: url("BarlowCondensed-Regular.ttf");
+}
+
+#secondarylabel {
+    -fx-font-size: 30px; 
+    -fx-text-fill: #FFFFFF; 
+    -fx-font-family: "Barlow Condensed";
+}
+
+
+.button {
+    -fx-background-color: black; 
+    -fx-background-radius: 20; 
+    -fx-text-fill: white;
+    -fx-opacity: 80%;
+    -fx-font-size: 20px;
+    -fx-font-family: "Barlow Condensed";
+}
+
+.text-field {
+    -fx-background-color: rgba(255, 255, 255, 0.2); /* semi-transparent white */
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-family: "Barlow Condensed";
+    -fx-prompt-text-fill: #cccccc;
+    -fx-background-radius: 10;
+    -fx-border-color: white;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 10 15;
+}

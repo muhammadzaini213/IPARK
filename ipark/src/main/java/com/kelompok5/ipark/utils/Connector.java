@@ -1,0 +1,155 @@
+package com.kelompok5.ipark.utils;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+
+public class Connector {
+
+    public Connection connector() throws SQLException {
+        Connection connection = DriverManager.getConnection(Statics.jdbcUrl);
+        return connection;
+    }
+
+    public void checkTableIfNotExists(String tableName, String structure, String unique) throws SQLException {
+        String checkSql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+        try (PreparedStatement stmt = connector().prepareStatement(checkSql)) {
+            stmt.setString(1, tableName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    String createSql = "CREATE TABLE " + tableName + " ( id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            + structure + ", UNIQUE(" + unique + "))";
+                    try (Statement createStmt = connector().createStatement()) {
+                        createStmt.executeUpdate(createSql);
+                    }
+                }
+            }
+        }
+    }
+
+    public void dropThenCreateTable(String tableName, String structure, String unique) throws SQLException {
+        try (Statement statement = connector().createStatement()) {
+            statement.executeUpdate("DROP TABLE IF EXISTS " + tableName);
+
+            String createSQL = String.format(
+                    "CREATE TABLE %s (id INTEGER PRIMARY KEY AUTOINCREMENT, %s, UNIQUE(%s))",
+                    tableName, structure, unique);
+
+            statement.executeUpdate(createSQL);
+        }
+    }
+
+    public void insertToTable(String tableName, String structure, String[] values) throws SQLException {
+        String placeholders = String.join(", ", java.util.Collections.nCopies(values.length, "?"));
+        String sql = "INSERT INTO " + tableName + " (" + structure + ") VALUES (" + placeholders + ")";
+
+        try (PreparedStatement statement = connector().prepareStatement(sql)) {
+            for (int i = 0; i < values.length; i++) {
+                statement.setString(i + 1, values[i]);
+            }
+            statement.executeUpdate();
+        }
+    }
+
+    public boolean areRowsPresent(String tableName, String[] columns, String[][] rows) throws SQLException {
+        if (rows.length == 0)
+            return true;
+
+        try (Connection connection = DriverManager.getConnection(Statics.jdbcUrl)) {
+            StringJoiner whereClause = new StringJoiner(" OR ");
+            for (int i = 0; i < rows.length; i++) {
+                StringJoiner andClause = new StringJoiner(" AND ", "(", ")");
+                for (String col : columns) {
+                    andClause.add(col + " = ?");
+                }
+                whereClause.add(andClause.toString());
+            }
+
+            String sql = "SELECT " + String.join(", ", columns) + " FROM " + tableName + " WHERE " + whereClause;
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                int paramIndex = 1;
+                for (String[] row : rows) {
+                    for (String value : row) {
+                        ps.setString(paramIndex++, value);
+                    }
+                }
+
+                Set<String> existing = new HashSet<>();
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        StringBuilder key = new StringBuilder();
+                        for (String col : columns) {
+                            key.append(rs.getString(col)).append("|");
+                        }
+                        existing.add(key.toString());
+                    }
+                }
+
+                for (String[] row : rows) {
+                    StringBuilder key = new StringBuilder();
+                    for (String value : row) {
+                        key.append(value).append("|");
+                    }
+                    if (!existing.contains(key.toString())) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+    }
+
+    public ResultSet loadItem(String tableName, String[] columns) throws SQLException {
+        String columnList = String.join(", ", columns);
+        String sql = "SELECT " + columnList + " FROM " + tableName;
+
+        Statement stmt = connector().createStatement();
+        return stmt.executeQuery(sql);
+    }
+
+    public void updateItem(String tableName, String[] columns, String[] values, int id) {
+        if (columns.length != values.length || columns.length == 0) {
+            throw new IllegalArgumentException("Columns and values must be same length and not empty");
+        }
+
+        StringBuilder setClause = new StringBuilder();
+        for (int i = 0; i < columns.length; i++) {
+            setClause.append(columns[i]).append(" = ?");
+            if (i < columns.length - 1) {
+                setClause.append(", ");
+            }
+        }
+
+        String sql = "UPDATE " + tableName + " SET " + setClause + " WHERE id = ?";
+        try {
+            PreparedStatement ps = connector().prepareStatement(sql);
+            for (int i = 0; i < values.length; i++) {
+                ps.setString(i + 1, values[i]);
+            }
+            ps.setInt(values.length + 1, id);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteItem(String tableName, int id) {
+        try {
+            String sql = "DELETE FROM " + tableName + " WHERE id = ?";
+            try (PreparedStatement ps = connector().prepareStatement(sql)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

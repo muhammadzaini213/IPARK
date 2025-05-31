@@ -7,6 +7,6 @@ import javafx.fxml.FXML;
 public class ParkLocsLocationController {
     @FXML
     private void backToMain() throws IOException {
-        App.setRoot("main_scene");
+        App.setRoot("scene_main");
     }
 }

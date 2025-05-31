@@ -11,31 +11,31 @@ public class MainController {
 
     @FXML
     private void allTableOption() throws IOException {
-        App.setRoot("alltable_scene");
+        App.setRoot("scene_alltable");
     }
 
     @FXML
     private void parkingOption() throws IOException {
-        App.setRoot("parking_scene");
+        App.setRoot("scene_parking");
     }
 
     @FXML
     private void parklocsOption() throws IOException {
-        App.setRoot("parklocs_scene");
+        App.setRoot("scene_parklocs");
     }
 
     @FXML
     private void parklocsLocationOption() throws IOException {
-        App.setRoot("parklocs_location_scene");
+        App.setRoot("scene_parklocs_location");
     }
 
     @FXML
     private void tariffsOption() throws IOException {
-        App.setRoot("tariff_scene");
+        App.setRoot("scene_tariff");
     }
     
     @FXML
     private void vehiclesOption() throws IOException {
-        App.setRoot("vehicle_scene");
+        App.setRoot("scene_vehicle");
     }
 }
