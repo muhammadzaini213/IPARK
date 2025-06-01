@@ -126,11 +126,11 @@ public class VehicleController implements MemoryHelper, Initializable {
             deleteItem.setOnAction(event -> {
                 VehicleModel selectedVehicle = row.getItem();
                 if (selectedVehicle != null) {
-                    if (selectedVehicle.getType().equals(car.getType())) {
+                    if (selectedVehicle.getName().equals(car.getName())) {
                         car.deleteVehicle(selectedVehicleId);
-                    } else if (selectedVehicle.getType().equals(motorCycle.getType())) {
+                    } else if (selectedVehicle.getName().equals(motorCycle.getName())) {
                         motorCycle.deleteVehicle(selectedVehicleId);
-                    } else if (selectedVehicle.getType().equals(bicycle.getType())) {
+                    } else if (selectedVehicle.getName().equals(bicycle.getName())) {
                         bicycle.deleteVehicle(selectedVehicleId);
                     } else {
                         new CustomVehicle().deleteVehicle(selectedVehicle);
@@ -188,7 +188,7 @@ public class VehicleController implements MemoryHelper, Initializable {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("window_add_vehicle.fxml"));
         Parent root = fxmlLoader.load();
         Stage stage = new Stage();
-        stage.setTitle("Tambah Kendaraan");
+        stage.setTitle("Tambah Tipe Kendaraan");
         stage.setScene(new Scene(root));
         stage.initOwner(((Node) (addBtn)).getScene().getWindow());
         stage.initModality(Modality.WINDOW_MODAL);

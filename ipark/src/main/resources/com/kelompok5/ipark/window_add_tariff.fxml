@@ -13,14 +13,12 @@
       alignment="CENTER" spacing="20.0"
       xmlns="http://javafx.com/javafx/8.0.171"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.kelompok5.ipark.VehicleController">
+      fx:controller="com.kelompok5.ipark.TariffController">
    <children>
       <Label fx:id="secondarylabel" text="Tambahkan Tariff"/>
 
-      <TextField fx:id="nameField" promptText="Nama Kendaraan" prefWidth="300"/>
-      <TextField fx:id="carTariffField" promptText="Tarif Mobil" prefWidth="300"/>
-      <TextField fx:id="motorcycleTariffField" promptText="Tarif Motor" prefWidth="300"/>
-      <TextField fx:id="bicycleTariffField" promptText="Tarif Sepeda" prefWidth="300"/>
+      <TextField fx:id="nameField" promptText="Nama Tariff" prefWidth="300"/>
+      <VBox fx:id="dynamicInputContainer" spacing="10" prefWidth="300" />
 
 
       <Button text="Submit" prefWidth="300" prefHeight="40" onAction="#saveToDB"/>
@@ -28,6 +26,9 @@
       <Button text="Keluar" prefWidth="300" prefHeight="45" onAction="#closeForm"/>
 <TableView fx:id="tariffTable" visible="false" managed="false">
     <columns>
+         <TableColumn fx:id="colName" text="" prefWidth="250" />
+         <TableColumn fx:id="colType" text="" prefWidth="150" />
+         <TableColumn fx:id="colType" text="" prefWidth="150" />
     </columns>
 </TableView>
 </children>

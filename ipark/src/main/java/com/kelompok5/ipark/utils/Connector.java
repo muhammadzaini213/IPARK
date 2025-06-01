@@ -25,6 +25,10 @@ public class Connector {
                 if (!rs.next()) {
                     String createSql = "CREATE TABLE " + tableName + " ( id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             + structure + ", UNIQUE(" + unique + "))";
+                    if (unique == null || unique.isEmpty()) {
+                        createSql = "CREATE TABLE " + tableName + " ( id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                + structure + ")";
+                    }
                     try (Statement createStmt = connector().createStatement()) {
                         createStmt.executeUpdate(createSql);
                     }

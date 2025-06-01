@@ -37,12 +37,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -50,7 +53,9 @@ public class TariffController implements MemoryHelper, Initializable {
 
     Connector connector = new Connector();
     String tableName = "tariffs";
-    String[] tableColumns = { "name", "car_tariff", "motorcycle_tariff", "bicycle_tariff" };
+    String[] tableColumns = { "name" };
+
+    boolean isForm = false;
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
@@ -58,6 +63,14 @@ public class TariffController implements MemoryHelper, Initializable {
         setupTableColumns();
         setupRowContextMenu();
         loadData();
+
+    }
+
+    public void setIsForm(boolean isForm) {
+        this.isForm = isForm;
+        if (isForm) {
+            loadVehicleInputs();
+        }
     }
 
     Tariff tariff;
@@ -78,30 +91,32 @@ public class TariffController implements MemoryHelper, Initializable {
     public void initializeDB() {
         try {
             connector.checkTableIfNotExists(tableName,
-                    "name TEXT NOT NULL, car_tariff INTEGER NOT NULL, motorcycle_tariff INTEGER NOT NULL, bicycle_tariff INTEGER NOT NULL",
+                    "name TEXT NOT NULL",
                     "name");
             connector.checkTableIfNotExists("vehicles", "name TEXT NOT NULL,type TEXT NOT NULL", "name");
             connector.checkTableIfNotExists(
                     "custom_tariff",
-                    "vehicle_id INTEGER NOT NULL, tariff_id INTEGER NOT NULL, tariff INTEGER NOT NULL" +
+                    "vehicle_id INTEGER NOT NULL, " +
+                            "tariff_id INTEGER NOT NULL, " +
+                            "tariff INTEGER NOT NULL, " + // <== comma added
                             "FOREIGN KEY(vehicle_id) REFERENCES vehicles(id), " +
                             "FOREIGN KEY(tariff_id) REFERENCES tariffs(id)",
-                    "");
+                    "" // assuming no UNIQUE constraint, or replace with column name
+            );
 
-            tariff = new Tariff("Gratis", 0, 0, 0, tableName, String.join(", ", tableColumns));
+            tariff = new Tariff("Gratis", tableName, String.join(", ", tableColumns));
 
             Object[][] rows = {
-                    { tariff.getName(), tariff.getCarTariff(), tariff.getMotorCycleTariff(), tariff.getBicycleTariff() }
+                    { tariff.getName() }
             };
             if (!connector.areRowsPresent(tableName, tableColumns, rows)) {
                 connector.dropThenCreateTable(tableName,
-                        "name TEXT NOT NULL, car_tariff INTEGER NOT NULL, motorcycle_tariff INTEGER NOT NULL, bicycle_tariff INTEGER NOT NULL",
+                        "name TEXT NOT NULL",
                         "name");
 
-                String structure = "name, car_tariff, motorcycle_tariff, bicycle_tariff";
+                String structure = "name";
 
-                Object[] values = { tariff.getName(), tariff.getCarTariff(), tariff.getMotorCycleTariff(),
-                        tariff.getBicycleTariff() };
+                Object[] values = { tariff.getName() };
                 connector.insertToTable(tableName, structure, values);
             }
         } catch (Exception e) {
@@ -124,20 +139,46 @@ public class TariffController implements MemoryHelper, Initializable {
         isEditMode = true;
     }
 
+    public void setTariffData(TariffModel tariffModel) {
+        nameField.setText(tariffModel.getName());
+        selectedTariffId = tariffModel.getId();
+        isEditMode = true;
+
+        for (Map.Entry<String, TextField> entry : vehicleInputFields.entrySet()) {
+            String vehicleName = entry.getKey();
+            TextField textField = entry.getValue();
+
+            Integer tariffValue = tariffModel.getCustomTariff(vehicleName);
+            if (tariffValue != null) {
+                textField.setText(String.valueOf(tariffValue));
+            } else {
+                textField.setText("0");
+            }
+        }
+    }
+
     private void openEditForm(TariffModel tariffModel) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("window_edit_tariff.fxml"));
-            Parent root = loader.load();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("window_edit_tariff.fxml"));
+            Parent root = fxmlLoader.load();
 
-            TariffController controller = loader.getController();
-            controller.setVehicleData(tariffModel);
+            TariffController controller = fxmlLoader.getController();
+            controller.setIsForm(true);
+            controller.setTariffData(tariffModel);
 
             Stage stage = new Stage();
             stage.setTitle("Edit Tariff");
             stage.setScene(new Scene(root));
-            stage.initOwner(tariffTable.getScene().getWindow());
+            stage.initOwner(((Node) (addBtn)).getScene().getWindow());
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setOnHidden(event -> loadData());
+
+            stage.setOnHidden(event -> {
+                initializeDB();
+                setupTableColumns();
+                setupRowContextMenu();
+                loadData();
+            });
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -150,6 +191,33 @@ public class TariffController implements MemoryHelper, Initializable {
         currentStage.close();
     }
 
+    @FXML
+    private Button addBtn;
+
+    @FXML
+    public void addForm() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("window_add_tariff.fxml"));
+        Parent root = fxmlLoader.load();
+
+        TariffController controller = fxmlLoader.getController();
+        controller.setIsForm(true);
+
+        Stage stage = new Stage();
+        stage.setTitle("Tambah Tariff");
+        stage.setScene(new Scene(root));
+        stage.initOwner(((Node) (addBtn)).getScene().getWindow());
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.setOnHidden(event -> {
+            initializeDB();
+            setupTableColumns();
+            setupRowContextMenu();
+            loadData();
+        });
+
+        stage.show();
+    }
+
     private void setupRowContextMenu() {
         tariffTable.setRowFactory(tv -> {
             TableRow<TariffModel> row = new TableRow<>();
@@ -158,12 +226,9 @@ public class TariffController implements MemoryHelper, Initializable {
 
             MenuItem editItem = new MenuItem("Edit");
             editItem.setOnAction(event -> {
-                TariffModel selectedTariff = row.getItem();
-                if (selectedTariff != null) {
-                    if (!selectedTariff.getName().equals(tariff.getName())) {
-                        openEditForm(selectedTariff);
-                    }
-
+                TariffModel selectedTariff = tariffTable.getSelectionModel().getSelectedItem();
+                if (selectedTariff != null && !selectedTariff.getName().equals(tariff.getName())) {
+                    openEditForm(selectedTariff);
                 }
             });
 
@@ -171,7 +236,11 @@ public class TariffController implements MemoryHelper, Initializable {
             deleteItem.setOnAction(event -> {
                 TariffModel selectedTariff = row.getItem();
                 if (selectedTariff != null) {
-                    tariff.deleteTariff(selectedTariff.getId());
+                    if (!selectedTariff.getName().equals(tariff.getName())) {
+                        tariff.deleteTariff(selectedTariff.getId());
+                        loadData();
+                        return;
+                    }
                 }
                 loadData();
             });
@@ -198,7 +267,7 @@ public class TariffController implements MemoryHelper, Initializable {
         try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
 
             // === 1. Load vehicle names for dynamic columns ===
-            ResultSet vehicleRS = conn.createStatement().executeQuery("SELECT id, name FROM vehicles");
+            ResultSet vehicleRS = conn.createStatement().executeQuery("SELECT id, name FROM vehicles ORDER BY id ASC");
             while (vehicleRS.next()) {
                 int id = vehicleRS.getInt("id");
                 String name = vehicleRS.getString("name");
@@ -241,12 +310,8 @@ public class TariffController implements MemoryHelper, Initializable {
                 }
             }
 
-            // Add all to observable list
             data.addAll(tariffMap.values());
 
-            // === 4. Setup dynamic columns ===
-
-            // Static name column
             TableColumn<TariffModel, String> nameCol = new TableColumn<>("Name");
             nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
             tariffTable.getColumns().add(nameCol);
@@ -255,6 +320,7 @@ public class TariffController implements MemoryHelper, Initializable {
             for (String vehicleName : vehicleNames) {
                 TableColumn<TariffModel, Number> dynamicCol = new TableColumn<>("Tariff " + vehicleName);
                 dynamicCol.setCellValueFactory(cellData -> cellData.getValue().getCustomTariffProperty(vehicleName));
+                dynamicCol.setPrefWidth(200); // <== Tambahkan ini
                 tariffTable.getColumns().add(dynamicCol);
             }
 
@@ -267,12 +333,136 @@ public class TariffController implements MemoryHelper, Initializable {
 
     @Override
     public void saveToDB(ActionEvent event) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveToDB'");
+        String tariffName = nameField.getText().trim();
+
+        if (tariffName.isEmpty()) {
+            System.out.println("Nama tarif tidak boleh kosong");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
+            conn.setAutoCommit(false);
+
+            if (isEditMode && selectedTariffId != -1) {
+                // UPDATE tarif name
+                String updateTariffSQL = "UPDATE tariffs SET name = ? WHERE id = ?";
+                PreparedStatement psUpdate = conn.prepareStatement(updateTariffSQL);
+                psUpdate.setString(1, tariffName);
+                psUpdate.setInt(2, selectedTariffId);
+                psUpdate.executeUpdate();
+
+                // Hapus semua custom tariff untuk tarif ini
+                String deleteCustomSQL = "DELETE FROM custom_tariff WHERE tariff_id = ?";
+                PreparedStatement psDelete = conn.prepareStatement(deleteCustomSQL);
+                psDelete.setInt(1, selectedTariffId);
+                psDelete.executeUpdate();
+
+                // Insert ulang custom tariffs
+                for (Map.Entry<String, TextField> entry : vehicleInputFields.entrySet()) {
+                    String vehicleName = entry.getKey();
+                    String tariffValueStr = entry.getValue().getText().trim();
+                    int tariffValue = 0;
+                    try {
+                        tariffValue = Integer.parseInt(tariffValueStr);
+                    } catch (NumberFormatException ex) {
+                        tariffValue = 0;
+                    }
+
+                    PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");
+                    psVehicle.setString(1, vehicleName);
+                    ResultSet rsVehicle = psVehicle.executeQuery();
+                    if (rsVehicle.next()) {
+                        int vehicleId = rsVehicle.getInt("id");
+
+                        PreparedStatement psCustom = conn.prepareStatement(
+                                "INSERT INTO custom_tariff(vehicle_id, tariff_id, tariff) VALUES (?, ?, ?)");
+                        psCustom.setInt(1, vehicleId);
+                        psCustom.setInt(2, selectedTariffId);
+                        psCustom.setInt(3, tariffValue);
+                        psCustom.executeUpdate();
+                    }
+                }
+            } else {
+                // Insert baru (kode lama)
+                String insertTariffSQL = "INSERT INTO tariffs(name) VALUES(?)";
+                PreparedStatement ps = conn.prepareStatement(insertTariffSQL, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, tariffName);
+                ps.executeUpdate();
+
+                ResultSet generatedKeys = ps.getGeneratedKeys();
+                int newTariffId = -1;
+                if (generatedKeys.next()) {
+                    newTariffId = generatedKeys.getInt(1);
+                } else {
+                    throw new RuntimeException("Gagal mendapatkan ID tarif baru");
+                }
+
+                for (Map.Entry<String, TextField> entry : vehicleInputFields.entrySet()) {
+                    String vehicleName = entry.getKey();
+                    String tariffValueStr = entry.getValue().getText().trim();
+                    int tariffValue = 0;
+                    try {
+                        tariffValue = Integer.parseInt(tariffValueStr);
+                    } catch (NumberFormatException ex) {
+                        tariffValue = 0;
+                    }
+
+                    PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");
+                    psVehicle.setString(1, vehicleName);
+                    ResultSet rsVehicle = psVehicle.executeQuery();
+                    if (rsVehicle.next()) {
+                        int vehicleId = rsVehicle.getInt("id");
+
+                        PreparedStatement psCustom = conn.prepareStatement(
+                                "INSERT INTO custom_tariff(vehicle_id, tariff_id, tariff) VALUES (?, ?, ?)");
+                        psCustom.setInt(1, vehicleId);
+                        psCustom.setInt(2, newTariffId);
+                        psCustom.setInt(3, tariffValue);
+                        psCustom.executeUpdate();
+                    }
+                }
+            }
+
+            conn.commit();
+
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void backToMain() throws IOException {
         App.setRoot("scene_main");
+    }
+
+    @FXML
+    private VBox dynamicInputContainer;
+
+    private Map<String, TextField> vehicleInputFields = new HashMap<>();
+
+    private void loadVehicleInputs() {
+        dynamicInputContainer.getChildren().clear();
+        vehicleInputFields.clear();
+
+        try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
+            ResultSet rs = conn.createStatement().executeQuery("SELECT id, name FROM vehicles ORDER BY id ASC");
+            while (rs.next()) {
+                String vehicleName = rs.getString("name");
+
+                TextField textField = new TextField();
+                textField.setPromptText("Masukkan tarif untuk " + vehicleName);
+                textField.setPrefWidth(300);
+
+                dynamicInputContainer.getChildren().addAll(textField);
+                vehicleInputFields.put(vehicleName, textField);
+                System.out.println("Memuat input kendaraan...");
+                System.out.println("Jumlah kendaraan: " + vehicleInputFields.size());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

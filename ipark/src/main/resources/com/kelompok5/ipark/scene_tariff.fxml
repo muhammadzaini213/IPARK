@@ -18,13 +18,10 @@
 
 <HBox alignment="CENTER">
     <VBox alignment="TOP_LEFT" spacing="10">
-<Button text="TAMBAHKAN" styleClass="add-button" prefWidth="150" prefHeight="20"/>
+<Button fx:id="addBtn" text="TAMBAHKAN" styleClass="add-button" prefWidth="150" prefHeight="20" onAction="#addForm"/>
         <TableView fx:id="tariffTable" prefWidth="1000" maxWidth="1000">
             <columns>
                 <TableColumn fx:id="colName" text="Nama" prefWidth="250" />
-                <TableColumn fx:id="colCarTariff" text="Tarif Mobil Standar" prefWidth="250" />
-                <TableColumn fx:id="colMotorcycleTariff" text="Tarif Motor Standar" prefWidth="250" />
-                <TableColumn fx:id="colBicycleTariff" text="Tarif Sepeda Standar" prefWidth="250" />
             </columns>
         </TableView>
     </VBox>
