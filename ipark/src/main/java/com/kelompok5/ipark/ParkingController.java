@@ -131,7 +131,6 @@ public class ParkingController implements MemoryHelper, Initializable {
             });
             contextMenu.getItems().add(changeAvailability);
 
-            // Buat submenu "Ubah Kapasitas Kendaraan"
             Menu changeCapacityMenu = new Menu("Ubah Kapasitas Kendaraan");
 
             for (String vehicleName : vehicleNames) {
@@ -178,7 +177,6 @@ public class ParkingController implements MemoryHelper, Initializable {
 
     private void updateParkingCapacity(ParkingModel model, String vehicleName, int delta) {
         try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
-            // Ambil ID kendaraan
             PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");
             psVehicle.setString(1, vehicleName);
             ResultSet rsVehicle = psVehicle.executeQuery();
@@ -204,7 +202,7 @@ public class ParkingController implements MemoryHelper, Initializable {
 
             int newUsed = currentUsed + delta;
             if (newUsed < 0)
-                newUsed = 0; 
+                newUsed = 0;
 
             if (exists) {
                 PreparedStatement psUpdate = conn.prepareStatement(
@@ -526,16 +524,23 @@ public class ParkingController implements MemoryHelper, Initializable {
                 customTariffs.put(new Pair<>(vehicleId, tariffId), tariff);
             }
 
-            // Assign custom tariffs to models
+            // Assign combined tariffs (location_tariff + custom tariff) to models
             for (ParkingModel model : parkingMap.values()) {
                 int tariffId = model.getTariffId();
+                int locationTariff = model.getLocation_tariff();
+
                 for (Map.Entry<Integer, String> entry : vehicleIdToName.entrySet()) {
                     int vehicleId = entry.getKey();
                     String vehicleName = entry.getValue();
-                    Integer tariff = customTariffs.get(new Pair<>(vehicleId, tariffId));
-                    if (tariff != null) {
-                        model.setParkingTariff(vehicleName, tariff);
+
+                    Integer customTariff = customTariffs.get(new Pair<>(vehicleId, tariffId));
+                    int totalTariff = locationTariff; // mulai dari tarif lokasi
+
+                    if (customTariff != null) {
+                        totalTariff += customTariff; // tambahkan custom tarif kendaraan
                     }
+
+                    model.setParkingTariff(vehicleName, totalTariff);
                 }
             }
 
@@ -546,13 +551,13 @@ public class ParkingController implements MemoryHelper, Initializable {
             nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
             parkingTable.getColumns().add(nameCol);
 
-            TableColumn<ParkingModel, Number> locationCapacityCol = new TableColumn<>("Tarif Lokasi");
-            locationCapacityCol.setCellValueFactory(cellData -> cellData.getValue().locationTariffProperty());
-            parkingTable.getColumns().add(locationCapacityCol);
+            // TableColumn<ParkingModel, Number> locationCapacityCol = new TableColumn<>("Tarif Lokasi");
+            // locationCapacityCol.setCellValueFactory(cellData -> cellData.getValue().locationTariffProperty());
+            // parkingTable.getColumns().add(locationCapacityCol);
 
-            TableColumn<ParkingModel, String> capacityCol = new TableColumn<>("Nama Tarif");
-            capacityCol.setCellValueFactory(cellData -> cellData.getValue().tariffNameProperty());
-            parkingTable.getColumns().add(capacityCol);
+            // TableColumn<ParkingModel, String> capacityCol = new TableColumn<>("Nama Tarif");
+            // capacityCol.setCellValueFactory(cellData -> cellData.getValue().tariffNameProperty());
+            // parkingTable.getColumns().add(capacityCol);
 
             for (String vehicleName : vehicleNames) {
                 TableColumn<ParkingModel, Number> dynamicCapCol = new TableColumn<>("Kapasitas " + vehicleName);

@@ -78,6 +78,8 @@ public class ParkingModel {
         availability.set(value);
     }
 
+    
+
     public BooleanProperty availabilityProperty() {
         return availability;
     }

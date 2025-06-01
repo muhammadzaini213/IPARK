@@ -16,8 +16,8 @@
     <Button text="Kelola Kendaraan" prefWidth="300" prefHeight="45" onAction="#vehiclesOption"/>
     <Button text="Kelola Tarif" prefWidth="300" prefHeight="45" onAction="#tariffsOption"/>
     <Button text="Kelola Lokasi Parkir" prefWidth="300" prefHeight="45" onAction="#parkingOption"/>
-    <Button text="Parkiran" prefWidth="300" prefHeight="45" onAction="#parklocsLocationOption"/>
-    <Button text="Lihat Data" prefWidth="300" prefHeight="45" onAction="#allTableOption"/>
+    <!-- <Button text="Parkiran" prefWidth="300" prefHeight="45" onAction="#parklocsLocationOption"/> -->
+    <!-- <Button text="Lihat Data" prefWidth="300" prefHeight="45" onAction="#allTableOption"/> -->
     <Button text="Keluar" onAction="#exit" prefWidth="300" prefHeight="45" />
    </children>
    <padding>
