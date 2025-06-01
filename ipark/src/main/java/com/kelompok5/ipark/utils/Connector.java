@@ -136,7 +136,7 @@ public class Connector {
         return stmt.executeQuery(sql);
     }
 
-    public void updateItem(String tableName, String[] columns, String[] values, int id) {
+    public void updateItem(String tableName, String[] columns, Object[] values, int id) {
         if (columns.length != values.length || columns.length == 0) {
             throw new IllegalArgumentException("Columns and values must be same length and not empty");
         }
@@ -150,13 +150,23 @@ public class Connector {
         }
 
         String sql = "UPDATE " + tableName + " SET " + setClause + " WHERE id = ?";
-        try {
-            PreparedStatement ps = connector().prepareStatement(sql);
+
+        try (PreparedStatement ps = connector().prepareStatement(sql)) {
             for (int i = 0; i < values.length; i++) {
-                ps.setString(i + 1, values[i]);
+                Object value = values[i];
+                if (value instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) value);
+                } else if (value instanceof Double) {
+                    ps.setDouble(i + 1, (Double) value);
+                } else if (value instanceof Boolean) {
+                    ps.setBoolean(i + 1, (Boolean) value);
+                } else if (value == null) {
+                    ps.setNull(i + 1, java.sql.Types.NULL);
+                } else {
+                    ps.setString(i + 1, value.toString());
+                }
             }
             ps.setInt(values.length + 1, id);
-
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

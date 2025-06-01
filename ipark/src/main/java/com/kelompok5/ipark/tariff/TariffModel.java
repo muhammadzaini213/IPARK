@@ -1,55 +1,45 @@
 package com.kelompok5.ipark.tariff;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class TariffModel {
     private final int id;
-        private final SimpleStringProperty name;
-        private final SimpleIntegerProperty car_tariff, motorCycle_tariff, bicycleTariff;
+    private final SimpleStringProperty name;
 
-        public TariffModel(int id, String name, int car_tariff, int motorCycle_tariff, int bicycleTariff) {
-            this.id = id;
-            this.name = new SimpleStringProperty(name);
-            this.car_tariff = new SimpleIntegerProperty(car_tariff);
-            this.motorCycle_tariff = new SimpleIntegerProperty(motorCycle_tariff);
-            this.bicycleTariff = new SimpleIntegerProperty(bicycleTariff);
+    public TariffModel(int id, String name) {
+        this.id = id;
+        this.name = new SimpleStringProperty(name);
+    }
 
-        }
+    public int getId() {
+        return id;
+    }
 
-        public int getId() {
-            return id;
-        }
+    public String getName() {
+        return name.get();
+    }
 
-        public String getName() {
-            return name.get();
-        }
+    public SimpleStringProperty nameProperty() {
+        return name;
+    }
 
-        public SimpleStringProperty nameProperty() {
-            return name;
-        }
+    private Map<String, Integer> customTariffs = new HashMap<>();
 
-        public int getCarTariff() {
-            return car_tariff.get();
-        }
+    public void setCustomTariff(String vehicleName, int tariff) {
+        customTariffs.put(vehicleName, tariff);
+    }
 
-        public SimpleIntegerProperty carTariffProperty() {
-            return car_tariff;
-        }
+    public Integer getCustomTariff(String vehicleName) {
+        return customTariffs.getOrDefault(vehicleName, 0);
+    }
 
-        public int getMotorCycleTariff() {
-            return motorCycle_tariff.get();
-        }
+    public IntegerProperty getCustomTariffProperty(String vehicleName) {
+        return new SimpleIntegerProperty(getCustomTariff(vehicleName));
+    }
 
-        public SimpleIntegerProperty motorCycleTariffProperty() {
-            return motorCycle_tariff;
-        }
-
-        public int getBicycleTariff() {
-            return bicycleTariff.get();
-        }
-
-        public SimpleIntegerProperty bicycleTariffProperty() {
-            return bicycleTariff;
-        }
 }

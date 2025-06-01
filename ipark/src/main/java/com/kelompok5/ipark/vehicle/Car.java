@@ -1,11 +1,6 @@
 package com.kelompok5.ipark.vehicle;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-
 import com.kelompok5.ipark.utils.Connector;
-import com.kelompok5.ipark.utils.Statics;
 
 public class Car extends Vehicle {
     Connector connector = new Connector();
