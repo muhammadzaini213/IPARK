@@ -6,7 +6,6 @@ d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\TariffCon
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\utils\MemoryHelper.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\vehicle\Car.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\module-info.java
-d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\ParkLocsLocationController.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\utils\Statics.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\tariff\Tariff.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\vehicle\MotorCycle.java
@@ -17,7 +16,6 @@ d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\vehicle\C
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\App.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\parking\ParkingModel.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\tariff\TariffModel.java
-d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\ParkLocsController.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\parking\TariffOption.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\vehicle\Bicycle.java
 d:\AppProject\TUBES-PBO\ipark2\ipark\src\main\java\com\kelompok5\ipark\VehicleController.java
