@@ -16,7 +16,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.kelompok5.ipark.ParkingController">
    <children>
-      <Label fx:id="secondarylabel" text="Tambahkan Lokasi"/>
+      <Label fx:id="secondarylabel" text="Edit Lokasi"/>
 
       <TextField fx:id="nameField" promptText="Nama Tariff" prefWidth="300"/>
       <TextField fx:id="locationTariffField" promptText="Tarif Lokasi" prefWidth="300"/>

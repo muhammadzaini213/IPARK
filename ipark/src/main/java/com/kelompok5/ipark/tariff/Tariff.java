@@ -5,7 +5,6 @@ import com.kelompok5.ipark.utils.Connector;
 public class Tariff {
     Connector connector = new Connector();
     String name;
-    int car_tariff, motorCycle_tariff, bicycleTariff;
     String tableName, structure;
     
     public Tariff(String name, String tableName, String structure) {
@@ -16,6 +15,10 @@ public class Tariff {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void addTariff(String name, int car_tariff, int motorCycle_tariff, int bicycleTariff) {

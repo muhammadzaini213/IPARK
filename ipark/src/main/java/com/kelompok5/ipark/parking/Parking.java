@@ -34,6 +34,22 @@ public class Parking {
         return availability;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLocation_tariff(int location_tariff) {
+        this.location_tariff = location_tariff;
+    }
+
+    public void setTariff_id(int tariff_id) {
+        this.tariff_id = tariff_id;
+    }
+
+    public void setAvailability(boolean availability) {
+        this.availability = availability;
+    }
+
     public void addParking(String name, int location_tariff, int tariff_id, boolean availability) {
         Object[] values = { name, location_tariff, tariff_id, availability };
         connector.insertToTable(tableName, structure, values);
@@ -47,7 +63,5 @@ public class Parking {
     public void deleteParking(int id) {
         connector.deleteItem(tableName, id);
     }
-
-    
 }
 

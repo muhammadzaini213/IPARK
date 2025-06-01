@@ -3,19 +3,23 @@ package com.kelompok5.ipark.parking;
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 public class ParkingModel {
     private final int id;
-    private final SimpleStringProperty name;
-    private final SimpleIntegerProperty location_tariff, tariff_id;
-    private final SimpleBooleanProperty availability;
-    private final SimpleStringProperty tariffName;  // add this
+    private final StringProperty name;
+    private final IntegerProperty location_tariff;
+    private final IntegerProperty tariff_id;
+    private final BooleanProperty availability;
+    private final StringProperty tariffName;
 
-    private Map<String, Integer> parkingCapacities = new HashMap<>();
+    private final Map<String, Integer> parkingCapacities = new HashMap<>();
+    private final Map<String, Integer> parkingTariffs = new HashMap<>();
 
     public ParkingModel(int id, String name, int location_tariff, int tariff_id, boolean availability) {
         this.id = id;
@@ -23,7 +27,7 @@ public class ParkingModel {
         this.location_tariff = new SimpleIntegerProperty(location_tariff);
         this.tariff_id = new SimpleIntegerProperty(tariff_id);
         this.availability = new SimpleBooleanProperty(availability);
-        this.tariffName = new SimpleStringProperty("");  // initialize empty
+        this.tariffName = new SimpleStringProperty("");
     }
 
     public int getId() {
@@ -33,13 +37,16 @@ public class ParkingModel {
     public String getName() {
         return name.get();
     }
-    
 
-    public SimpleStringProperty nameProperty() {
+    public StringProperty nameProperty() {
         return name;
     }
 
-    public SimpleIntegerProperty locationTariffProperty() {
+    public int getLocation_tariff() {
+        return location_tariff.get();
+    }
+
+    public IntegerProperty locationTariffProperty() {
         return location_tariff;
     }
 
@@ -47,7 +54,7 @@ public class ParkingModel {
         return tariff_id.get();
     }
 
-    public SimpleIntegerProperty tariffIdProperty() {
+    public IntegerProperty tariffIdProperty() {
         return tariff_id;
     }
 
@@ -59,7 +66,7 @@ public class ParkingModel {
         tariffName.set(value);
     }
 
-    public SimpleStringProperty tariffNameProperty() {
+    public StringProperty tariffNameProperty() {
         return tariffName;
     }
 
@@ -71,10 +78,11 @@ public class ParkingModel {
         availability.set(value);
     }
 
-    public SimpleBooleanProperty availabilityProperty() {
+    public BooleanProperty availabilityProperty() {
         return availability;
     }
 
+    // ====== Capacity handling ======
     public void setParkingCapacity(String vehicleName, int capacity) {
         parkingCapacities.put(vehicleName, capacity);
     }
@@ -87,7 +95,35 @@ public class ParkingModel {
         return new SimpleIntegerProperty(getCustomParking(vehicleName));
     }
 
-    public int getLocation_tariff() {
-        return location_tariff.get();
+    // ====== Tariff handling (New) ======
+    public void setParkingTariff(String vehicleName, int tariff) {
+        parkingTariffs.put(vehicleName, tariff);
     }
+
+    public int getCustomTariff(String vehicleName) {
+        return parkingTariffs.getOrDefault(vehicleName, 0);
+    }
+
+    public IntegerProperty getCustomTariffProperty(String vehicleName) {
+        return new SimpleIntegerProperty(getCustomTariff(vehicleName));
+    }
+
+    public BooleanProperty getAvailability() {
+        return availability;
+    }
+
+    private final Map<String, Integer> usedCapacities = new HashMap<>();
+
+    public void setUsedCapacity(String vehicleName, int used) {
+        usedCapacities.put(vehicleName, used);
+    }
+
+    public int getUsedCapacity(String vehicleName) {
+        return usedCapacities.getOrDefault(vehicleName, 0);
+    }
+
+    public IntegerProperty getUsedCapacityProperty(String vehicleName) {
+        return new SimpleIntegerProperty(getUsedCapacity(vehicleName));
+    }
+
 }

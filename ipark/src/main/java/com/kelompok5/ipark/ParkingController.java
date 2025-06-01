@@ -33,6 +33,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -41,6 +42,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 public class ParkingController implements MemoryHelper, Initializable {
 
@@ -89,11 +91,15 @@ public class ParkingController implements MemoryHelper, Initializable {
     }
 
     private void setupRowContextMenu() {
+        // Ambil daftar kendaraan sekali saja
+        List<String> vehicleNames = getVehicleNames();
+
         parkingTable.setRowFactory(tv -> {
             TableRow<ParkingModel> row = new TableRow<>();
 
             ContextMenu contextMenu = new ContextMenu();
 
+            // Edit dan Hapus
             MenuItem editItem = new MenuItem("Edit");
             editItem.setOnAction(event -> {
                 ParkingModel selectedParking = parkingTable.getSelectionModel().getSelectedItem();
@@ -105,15 +111,50 @@ public class ParkingController implements MemoryHelper, Initializable {
             MenuItem deleteItem = new MenuItem("Hapus");
             deleteItem.setOnAction(event -> {
                 ParkingModel selectedParking = row.getItem();
-                if (selectedParking != null) {
-                    if (!selectedParking.getName().equals(parking.getName())) {
-                        parking.deleteParking(selectedParking.getId());
-                    }
+                if (selectedParking != null && !selectedParking.getName().equals(parking.getName())) {
+                    parking.deleteParking(selectedParking.getId());
                 }
                 loadData();
             });
 
             contextMenu.getItems().addAll(editItem, deleteItem);
+
+            MenuItem changeAvailability = new MenuItem("Ubah Availability");
+            changeAvailability.setOnAction(event -> {
+                ParkingModel model = row.getItem();
+                if (model != null) {
+                    boolean currentAvailability = model.isAvailability();
+                    boolean newAvailability = !currentAvailability;
+                    updateParkingAvailability(model.getId(), newAvailability);
+                    loadData();
+                }
+            });
+            contextMenu.getItems().add(changeAvailability);
+
+            // Buat submenu "Ubah Kapasitas Kendaraan"
+            Menu changeCapacityMenu = new Menu("Ubah Kapasitas Kendaraan");
+
+            for (String vehicleName : vehicleNames) {
+                MenuItem addVehicle = new MenuItem("Tambah " + vehicleName);
+                addVehicle.setOnAction(event -> {
+                    ParkingModel model = row.getItem();
+                    if (model != null) {
+                        updateParkingCapacity(model, vehicleName, 1); // tambah 1
+                    }
+                });
+
+                MenuItem reduceVehicle = new MenuItem("Kurangi " + vehicleName);
+                reduceVehicle.setOnAction(event -> {
+                    ParkingModel model = row.getItem();
+                    if (model != null) {
+                        updateParkingCapacity(model, vehicleName, -1); // kurangi 1
+                    }
+                });
+
+                changeCapacityMenu.getItems().addAll(addVehicle, reduceVehicle);
+            }
+
+            contextMenu.getItems().add(changeCapacityMenu);
 
             row.contextMenuProperty().bind(
                     javafx.beans.binding.Bindings.when(row.emptyProperty())
@@ -124,9 +165,87 @@ public class ParkingController implements MemoryHelper, Initializable {
         });
     }
 
+    private void updateParkingAvailability(int parkingId, boolean available) {
+        try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
+            PreparedStatement ps = conn.prepareStatement("UPDATE parkings SET availability = ? WHERE id = ?");
+            ps.setBoolean(1, available);
+            ps.setInt(2, parkingId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateParkingCapacity(ParkingModel model, String vehicleName, int delta) {
+        try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
+            // Ambil ID kendaraan
+            PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");
+            psVehicle.setString(1, vehicleName);
+            ResultSet rsVehicle = psVehicle.executeQuery();
+            if (!rsVehicle.next())
+                return;
+            int vehicleId = rsVehicle.getInt("id");
+            rsVehicle.close();
+
+            // Ambil nilai used sekarang
+            PreparedStatement psCapacity = conn.prepareStatement(
+                    "SELECT used FROM parking_capacity WHERE parking_id = ? AND vehicle_id = ?");
+            psCapacity.setInt(1, model.getId());
+            psCapacity.setInt(2, vehicleId);
+            ResultSet rsCapacity = psCapacity.executeQuery();
+
+            int currentUsed = 0;
+            boolean exists = false;
+            if (rsCapacity.next()) {
+                currentUsed = rsCapacity.getInt("used");
+                exists = true;
+            }
+            rsCapacity.close();
+
+            int newUsed = currentUsed + delta;
+            if (newUsed < 0)
+                newUsed = 0; 
+
+            if (exists) {
+                PreparedStatement psUpdate = conn.prepareStatement(
+                        "UPDATE parking_capacity SET used = ? WHERE parking_id = ? AND vehicle_id = ?");
+                psUpdate.setInt(1, newUsed);
+                psUpdate.setInt(2, model.getId());
+                psUpdate.setInt(3, vehicleId);
+                psUpdate.executeUpdate();
+            } else {
+                // Jika belum ada record, INSERT baru
+                PreparedStatement psInsert = conn.prepareStatement(
+                        "INSERT INTO parking_capacity (parking_id, vehicle_id, capacity, used) VALUES (?, ?, 0, ?)");
+                psInsert.setInt(1, model.getId());
+                psInsert.setInt(2, vehicleId);
+                psInsert.setInt(3, newUsed);
+                psInsert.executeUpdate();
+            }
+
+            loadData(); // reload table agar update terlihat
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<String> getVehicleNames() {
+        List<String> vehicleNames = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
+            ResultSet rs = conn.createStatement().executeQuery("SELECT name FROM vehicles ORDER BY id ASC");
+            while (rs.next()) {
+                vehicleNames.add(rs.getString("name"));
+            }
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vehicleNames;
+    }
+
     private void openEditForm(ParkingModel parkingModel) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("window_add_location.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("window_edit_location.fxml"));
             Parent root = fxmlLoader.load();
 
             ParkingController controller = fxmlLoader.getController();
@@ -152,7 +271,7 @@ public class ParkingController implements MemoryHelper, Initializable {
 
         nameField.setText(parkingModel.getName());
         locationTariffField.setText(String.valueOf(parkingModel.getLocation_tariff()));
-        availabilityCombobox.setValue(parkingModel.isAvailability() ? "Ya" : "Tidak");
+        availabilityCombobox.setValue(parkingModel.getAvailability().get() ? "Ya" : "Tidak");
 
         for (TariffOption option : tariffComboBox.getItems()) {
             if (option.getId() == parkingModel.getTariffId()) {
@@ -193,11 +312,12 @@ public class ParkingController implements MemoryHelper, Initializable {
                     "parking_id INTEGER NOT NULL, " +
                             "vehicle_id INTEGER NOT NULL, " +
                             "capacity INTEGER NOT NULL, " +
+                            "used INTEGER DEFAULT 0, " +
                             "FOREIGN KEY(parking_id) REFERENCES parkings(id), " +
                             "FOREIGN KEY(vehicle_id) REFERENCES vehicles(id)",
                     "");
 
-            parking = new Parking("Default", 0, 1, true, tableName, String.join(", ", tableColumns));
+            parking = new Parking("Defaut", 0, 1, true, tableName, String.join(", ", tableColumns));
 
             // Manually check if row exists using raw SQL
             String checkSql = "SELECT 1 FROM " + tableName + " WHERE name = ?";
@@ -210,10 +330,10 @@ public class ParkingController implements MemoryHelper, Initializable {
                             parking.getName(),
                             parking.getLocationTariff(),
                             parking.getTariffId(),
-                            parking.isAvailable() ? 1 : 0 // convert boolean to integer for SQLite
+                            parking.isAvailable() ? 1 : 0
                     };
-                    connector.insertToTable(tableName, String.join(", ", tableColumns), values);
-                    System.out.println("Inserted default parking.");
+                    // connector.insertToTable(tableName, String.join(", ", tableColumns), values);
+                    // System.out.println("Inserted default parking.");
                 } else {
                     System.out.println("Parking already exists. No insert.");
                 }
@@ -330,6 +450,7 @@ public class ParkingController implements MemoryHelper, Initializable {
         List<String> vehicleNames = new ArrayList<>();
         Map<Integer, String> vehicleIdToName = new HashMap<>();
         Map<Integer, String> tariffIdToName = new HashMap<>();
+        Map<Pair<Integer, Integer>, Integer> customTariffs = new HashMap<>();
 
         try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
             // Load vehicles
@@ -366,9 +487,10 @@ public class ParkingController implements MemoryHelper, Initializable {
                 model.setTariffName(tariffName);
                 model.setAvailability(availability);
 
-                // Init capacities to 0 for each vehicle
+                // Init capacities & tariffs to 0
                 for (String vehicle : vehicleNames) {
                     model.setParkingCapacity(vehicle, 0);
+                    model.setParkingTariff(vehicle, 0);
                 }
 
                 parkingMap.put(id, model);
@@ -376,17 +498,44 @@ public class ParkingController implements MemoryHelper, Initializable {
 
             // Load capacities
             ResultSet customRS = conn.createStatement()
-                    .executeQuery("SELECT vehicle_id, parking_id, capacity FROM parking_capacity");
+                    .executeQuery("SELECT vehicle_id, parking_id, capacity, used FROM parking_capacity");
 
             while (customRS.next()) {
                 int vehicleId = customRS.getInt("vehicle_id");
                 int parkingId = customRS.getInt("parking_id");
                 int capacity = customRS.getInt("capacity");
+                int used = customRS.getInt("used");
 
                 ParkingModel model = parkingMap.get(parkingId);
                 if (model != null) {
                     String vehicleName = vehicleIdToName.get(vehicleId);
                     model.setParkingCapacity(vehicleName, capacity);
+                    model.setUsedCapacity(vehicleName, used); // tambahkan ini
+                }
+            }
+
+            // Load custom tariffs
+            ResultSet customTariffRS = conn.createStatement()
+                    .executeQuery("SELECT vehicle_id, tariff_id, tariff FROM custom_tariff");
+
+            while (customTariffRS.next()) {
+                int vehicleId = customTariffRS.getInt("vehicle_id");
+                int tariffId = customTariffRS.getInt("tariff_id");
+                int tariff = customTariffRS.getInt("tariff");
+
+                customTariffs.put(new Pair<>(vehicleId, tariffId), tariff);
+            }
+
+            // Assign custom tariffs to models
+            for (ParkingModel model : parkingMap.values()) {
+                int tariffId = model.getTariffId();
+                for (Map.Entry<Integer, String> entry : vehicleIdToName.entrySet()) {
+                    int vehicleId = entry.getKey();
+                    String vehicleName = entry.getValue();
+                    Integer tariff = customTariffs.get(new Pair<>(vehicleId, tariffId));
+                    if (tariff != null) {
+                        model.setParkingTariff(vehicleName, tariff);
+                    }
                 }
             }
 
@@ -406,10 +555,23 @@ public class ParkingController implements MemoryHelper, Initializable {
             parkingTable.getColumns().add(capacityCol);
 
             for (String vehicleName : vehicleNames) {
-                TableColumn<ParkingModel, Number> dynamicCol = new TableColumn<>("Kapasitas " + vehicleName);
-                dynamicCol.setCellValueFactory(cellData -> cellData.getValue().getCustomParkingProperty(vehicleName));
-                dynamicCol.setPrefWidth(200);
-                parkingTable.getColumns().add(dynamicCol);
+                TableColumn<ParkingModel, Number> dynamicCapCol = new TableColumn<>("Kapasitas " + vehicleName);
+                dynamicCapCol
+                        .setCellValueFactory(cellData -> cellData.getValue().getCustomParkingProperty(vehicleName));
+                dynamicCapCol.setPrefWidth(120);
+                parkingTable.getColumns().add(dynamicCapCol);
+
+                TableColumn<ParkingModel, Number> usedCapCol = new TableColumn<>(
+                        "Parkiran " + vehicleName + " Digunakan ");
+                usedCapCol.setCellValueFactory(cellData -> cellData.getValue().getUsedCapacityProperty(vehicleName));
+                usedCapCol.setPrefWidth(120);
+                parkingTable.getColumns().add(usedCapCol);
+
+                TableColumn<ParkingModel, Number> dynamicTariffCol = new TableColumn<>("Tarif " + vehicleName);
+                dynamicTariffCol
+                        .setCellValueFactory(cellData -> cellData.getValue().getCustomTariffProperty(vehicleName));
+                dynamicTariffCol.setPrefWidth(120);
+                parkingTable.getColumns().add(dynamicTariffCol);
             }
 
             TableColumn<ParkingModel, Boolean> availabilityCol = new TableColumn<>("Status");
