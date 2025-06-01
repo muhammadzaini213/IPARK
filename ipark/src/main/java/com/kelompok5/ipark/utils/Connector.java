@@ -61,6 +61,8 @@ public class Connector {
                         statement.setInt(i + 1, (Integer) value);
                     } else if (value instanceof String) {
                         statement.setString(i + 1, (String) value);
+                    } else if (value instanceof Boolean) {
+                        statement.setBoolean(i + 1, (Boolean) value);
                     } else if (value == null) {
                         statement.setNull(i + 1, java.sql.Types.NULL);
                     } else {
@@ -70,9 +72,8 @@ public class Connector {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
-
     }
 
     public boolean areRowsPresent(String tableName, String[] columns, Object[][] rows) throws SQLException {

@@ -10,6 +10,42 @@
     src: url("BarlowCondensed-Regular.ttf");
 }
 
+.combo-box {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-family: "Barlow Condensed";
+    -fx-prompt-text-fill: #cccccc;
+    -fx-background-radius: 10;
+    -fx-border-color: white;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 10 15;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: black;
+    -fx-font-size: 18px;
+    -fx-font-family: "Barlow Condensed";
+    -fx-prompt-text-fill: #cccccc;
+    -fx-background-radius: 10;
+    -fx-border-color: white;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 10 15;
+
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: white;
+}
+
+
 #secondarylabel {
     -fx-font-size: 30px; 
     -fx-text-fill: #FFFFFF; 

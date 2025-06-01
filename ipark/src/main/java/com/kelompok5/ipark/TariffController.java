@@ -12,15 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.*;
-import java.lang.reflect.Type;
 
-import com.google.gson.*;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.kelompok5.ipark.tariff.Tariff;
 import com.kelompok5.ipark.tariff.TariffModel;
@@ -39,7 +31,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -63,7 +54,6 @@ public class TariffController implements MemoryHelper, Initializable {
         setupTableColumns();
         setupRowContextMenu();
         loadData();
-
     }
 
     public void setIsForm(boolean isForm) {

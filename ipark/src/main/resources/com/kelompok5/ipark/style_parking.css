@@ -39,7 +39,7 @@
 }
 
 .button.add-button {
-    -fx-background-image: url("ic_add.png");
+    -fx-background-image: url("bg_add.png");
     -fx-background-repeat: no-repeat;
     -fx-background-position: left center;
     -fx-background-size: 20px 20px;
