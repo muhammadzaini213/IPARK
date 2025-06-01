@@ -72,9 +72,9 @@ public class VehicleController implements MemoryHelper, Initializable {
         try {
             connector.checkTableIfNotExists(tableName, "name TEXT NOT NULL,type TEXT NOT NULL", "name");
 
-            car = new Car("Mobil Standar", "Mobil", tableName, new String[] { "name", "type" });
-            motorCycle = new MotorCycle("Motor Standar", "Motor", tableName, tableColumns);
-            bicycle = new Bicycle("Sepeda Standar", "Sepeda", tableName, tableColumns);
+            car = new Car("Mobil Standar", "Mobil", tableName, String.join(", ", tableColumns));
+            motorCycle = new MotorCycle("Motor Standar", "Motor", tableName, String.join(", ", tableColumns));
+            bicycle = new Bicycle("Sepeda Standar", "Sepeda", tableName, String.join(", ", tableColumns));
             Vehicle[] vehicles = {car, motorCycle, bicycle};
 
             String[][] rows = {

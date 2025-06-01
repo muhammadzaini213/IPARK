@@ -11,40 +11,29 @@ public class Car extends Vehicle {
     Connector connector = new Connector();
 
     private String name, type, tableName;
-    private String[] structure;
+    private String structure;
 
-    public Car(String name, String type, String tableName, String[] structure) {
+    public Car(String name, String type, String tableName, String structure) {
         this.name = name;
         this.type = type;
-        this.tableName = tableName; 
+        this.tableName = tableName;
         this.structure = structure;
     }
 
     @Override
     public void addVehicle(String name) {
-        try {
-            Connection connection = DriverManager.getConnection(Statics.jdbcUrl);
-            String sql = "INSERT INTO vehicles (name, type) VALUES (?, ?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, name);
-            ps.setString(2, getType());
-            ps.executeUpdate();
-            ps.close();
-        } catch (Exception e) {
-
-        }
+        connector.insertToTable(tableName, structure, new String[] { name, getType() });
     }
 
     @Override
     public void editVehicle(int id, String[] values) {
-        connector.updateItem(tableName, structure, values, id);
+        connector.updateItem(tableName, structure.split(", "), values, id);
     }
 
     @Override
     public void deleteVehicle(int id) {
         connector.deleteItem(tableName, id);
     }
-
 
     @Override
     public void parkTo(int id) {

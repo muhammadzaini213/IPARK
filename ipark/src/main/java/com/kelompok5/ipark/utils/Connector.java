@@ -45,25 +45,39 @@ public class Connector {
         }
     }
 
-    public void insertToTable(String tableName, String structure, String[] values) throws SQLException {
-        String placeholders = String.join(", ", java.util.Collections.nCopies(values.length, "?"));
-        String sql = "INSERT INTO " + tableName + " (" + structure + ") VALUES (" + placeholders + ")";
+    public void insertToTable(String tableName, String structure, Object[] values) {
+        try {
+            String placeholders = String.join(", ", java.util.Collections.nCopies(values.length, "?"));
+            String sql = "INSERT INTO " + tableName + " (" + structure + ") VALUES (" + placeholders + ")";
 
-        try (PreparedStatement statement = connector().prepareStatement(sql)) {
-            for (int i = 0; i < values.length; i++) {
-                statement.setString(i + 1, values[i]);
+            try (PreparedStatement statement = connector().prepareStatement(sql)) {
+                for (int i = 0; i < values.length; i++) {
+                    Object value = values[i];
+                    if (value instanceof Integer) {
+                        statement.setInt(i + 1, (Integer) value);
+                    } else if (value instanceof String) {
+                        statement.setString(i + 1, (String) value);
+                    } else if (value == null) {
+                        statement.setNull(i + 1, java.sql.Types.NULL);
+                    } else {
+                        throw new SQLException("Unsupported data type at index " + i + ": " + value.getClass());
+                    }
+                }
+                statement.executeUpdate();
             }
-            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
     }
 
-    public boolean areRowsPresent(String tableName, String[] columns, String[][] rows) throws SQLException {
+    public boolean areRowsPresent(String tableName, String[] columns, Object[][] rows) throws SQLException {
         if (rows.length == 0)
             return true;
 
         try (Connection connection = DriverManager.getConnection(Statics.jdbcUrl)) {
             StringJoiner whereClause = new StringJoiner(" OR ");
-            for (int i = 0; i < rows.length; i++) {
+            for (Object[] row : rows) {
                 StringJoiner andClause = new StringJoiner(" AND ", "(", ")");
                 for (String col : columns) {
                     andClause.add(col + " = ?");
@@ -72,11 +86,20 @@ public class Connector {
             }
 
             String sql = "SELECT " + String.join(", ", columns) + " FROM " + tableName + " WHERE " + whereClause;
+
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 int paramIndex = 1;
-                for (String[] row : rows) {
-                    for (String value : row) {
-                        ps.setString(paramIndex++, value);
+                for (Object[] row : rows) {
+                    for (Object value : row) {
+                        if (value instanceof Integer) {
+                            ps.setInt(paramIndex++, (Integer) value);
+                        } else if (value instanceof Double) {
+                            ps.setDouble(paramIndex++, (Double) value);
+                        } else if (value instanceof Boolean) {
+                            ps.setBoolean(paramIndex++, (Boolean) value);
+                        } else {
+                            ps.setString(paramIndex++, value.toString());
+                        }
                     }
                 }
 
@@ -91,14 +114,13 @@ public class Connector {
                     }
                 }
 
-                for (String[] row : rows) {
+                for (Object[] row : rows) {
                     StringBuilder key = new StringBuilder();
-                    for (String value : row) {
-                        key.append(value).append("|");
+                    for (Object value : row) {
+                        key.append(value.toString()).append("|");
                     }
-                    if (!existing.contains(key.toString())) {
+                    if (!existing.contains(key.toString()))
                         return false;
-                    }
                 }
 
                 return true;

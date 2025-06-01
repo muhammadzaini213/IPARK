@@ -19,12 +19,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.kelompok5.ipark.tariff.Tariff;
 import com.kelompok5.ipark.tariff.TariffModel;
+import com.kelompok5.ipark.utils.Connector;
 import com.kelompok5.ipark.utils.MemoryHelper;
 import com.kelompok5.ipark.utils.Statics;
 
@@ -41,9 +41,10 @@ import javafx.scene.control.TableView;
 
 public class TariffController implements MemoryHelper, Initializable {
 
+    Connector connector = new Connector();
     String tableName = "tariffs";
     String[] tableColumns = { "name", "car_tariff", "motorcycle_tariff", "bicycle_tariff" };
-    
+
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         initializeDB();
@@ -66,10 +67,33 @@ public class TariffController implements MemoryHelper, Initializable {
     @FXML
     private TableColumn<TariffModel, Integer> colCarTariff, colMotorcycleTariff, colBicycleTariff;
 
-
     @Override
     public void initializeDB() {
-        
+        try {
+            connector.checkTableIfNotExists(tableName,
+                    "name TEXT NOT NULL, car_tariff INTEGER NOT NULL, motorcycle_tariff INTEGER NOT NULL, bicycle_tariff INTEGER NOT NULL",
+                    "name");
+            connector.checkTableIfNotExists("vehicles", "name TEXT NOT NULL,type TEXT NOT NULL", "name");
+
+            tariff = new Tariff("Gratis", 0, 0, 0);
+
+            Object[][] rows = {
+                    { tariff.getName(), tariff.getCarTariff(), tariff.getMotorCycleTariff(), tariff.getBicycleTariff() }
+            };
+            if (!connector.areRowsPresent(tableName, tableColumns, rows)) {
+                connector.dropThenCreateTable(tableName,
+                        "name TEXT NOT NULL, car_tariff INTEGER NOT NULL, motorcycle_tariff INTEGER NOT NULL, bicycle_tariff INTEGER NOT NULL",
+                        "name");
+
+                String structure = "name, car_tariff, motorcycle_tariff, bicycle_tariff";
+
+                Object[] values = { tariff.getName(), tariff.getCarTariff(), tariff.getMotorCycleTariff(),
+                        tariff.getBicycleTariff() };
+                connector.insertToTable(tableName, structure, values);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupTableColumns() {
