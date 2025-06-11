@@ -18,6 +18,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import main.java.com.kelompok5.ipark.utils.Toast;
 
 import java.io.IOException;
 import java.net.URL;
@@ -235,7 +236,12 @@ public class VehicleController implements MemoryHelper, Initializable {
         String name = nameField.getText().trim();
         String type = typeField.getText().trim();
 
-        if (name.isEmpty() || type.isEmpty()) {
+        if (name.isEmpty()) {
+            Toast.showToast((Stage) nameField.getScene().getWindow(), "Nama Kendaraan Tidak Boleh Kosong!");
+            return;
+        } else if (type.isEmpty()) {
+            Toast.showToast((Stage) typeField.getScene().getWindow(), "Tipe Kendaraan Tidak Boleh Kosong!");
+            return;
         }
 
         if (type.equals(car.getType())) {

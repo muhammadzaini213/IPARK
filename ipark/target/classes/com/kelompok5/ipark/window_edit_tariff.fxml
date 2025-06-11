@@ -17,7 +17,7 @@
    <children>
       <Label fx:id="secondarylabel" text="Edit Tariff"/>
 
-      <TextField fx:id="nameField" promptText="Nama Tarif" prefWidth="300"/>
+      <TextField fx:id="nameField" promptText="Nama Tariff" prefWidth="300"/>
       <VBox fx:id="dynamicInputContainer" spacing="10" prefWidth="300" />
 
 

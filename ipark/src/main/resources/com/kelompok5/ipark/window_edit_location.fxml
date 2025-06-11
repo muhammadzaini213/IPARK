@@ -18,7 +18,7 @@
    <children>
       <Label fx:id="secondarylabel" text="Edit Lokasi"/>
 
-      <TextField fx:id="nameField" promptText="Nama Tariff" prefWidth="300"/>
+      <TextField fx:id="nameField" promptText="Nama Lokasi" prefWidth="300"/>
       <TextField fx:id="locationTariffField" promptText="Tarif Lokasi" prefWidth="300"/>
       <ComboBox fx:id="tariffComboBox" promptText="Pilih Tarif" prefWidth="300"/>
       <VBox fx:id="dynamicInputContainer" spacing="10" prefWidth="300" />

@@ -13,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import javafx.scene.control.Alert;
+import main.java.com.kelompok5.ipark.utils.Toast;
 
 import com.kelompok5.ipark.parking.Parking;
 import com.kelompok5.ipark.parking.ParkingModel;
@@ -137,16 +139,20 @@ public class ParkingController implements MemoryHelper, Initializable {
                 MenuItem addVehicle = new MenuItem("Tambah " + vehicleName);
                 addVehicle.setOnAction(event -> {
                     ParkingModel model = row.getItem();
-                    if (model != null) {
-                        updateParkingCapacity(model, vehicleName, 1); // tambah 1
+                    if ((model != null) && model.isAvailability()) {
+                        updateParkingCapacity(model, vehicleName, 1);
+                    } else {
+                        Toast.showToast((Stage) parkingTable.getScene().getWindow(), "Parkiran tidak aktif!");
                     }
                 });
 
                 MenuItem reduceVehicle = new MenuItem("Kurangi " + vehicleName);
                 reduceVehicle.setOnAction(event -> {
                     ParkingModel model = row.getItem();
-                    if (model != null) {
+                    if ((model != null) && model.isAvailability()) {
                         updateParkingCapacity(model, vehicleName, -1); // kurangi 1
+                    } else {
+                        Toast.showToast((Stage) parkingTable.getScene().getWindow(), "Parkiran tidak aktif!");
                     }
                 });
 
@@ -269,7 +275,7 @@ public class ParkingController implements MemoryHelper, Initializable {
 
         nameField.setText(parkingModel.getName());
         locationTariffField.setText(String.valueOf(parkingModel.getLocation_tariff()));
-        availabilityCombobox.setValue(parkingModel.getAvailability().get() ? "Ya" : "Tidak");
+        availabilityCombobox.setValue(parkingModel.getAvailability().get() ? "Status Parkiran: Aktif" : "Status Parkiran: Nonaktif");
 
         for (TariffOption option : tariffComboBox.getItems()) {
             if (option.getId() == parkingModel.getTariffId()) {
@@ -345,20 +351,45 @@ public class ParkingController implements MemoryHelper, Initializable {
     @Override
     public void saveToDB(ActionEvent event) {
         String locationName = nameField.getText().trim();
-        int locationTariff = Integer.parseInt(locationTariffField.getText().trim());
-        boolean isAvailable = "Ya".equals(availabilityCombobox.getValue());
+        int locationTariff = 0;
+        try {
+            locationTariff = Integer.parseInt(locationTariffField.getText().trim());
+            if (locationTariff < 0) {
+                Toast.showToast((Stage) nameField.getScene().getWindow(), "Tarif lokasi tidak boleh negatif!");
+                return;
+            }
+        } catch (Exception e) {
+            Toast.showToast((Stage) nameField.getScene().getWindow(), "Tarif lokasi harus berupa angka!");
+            return;
+        } 
+        String availability = availabilityCombobox.getValue();
 
-        if (locationName.isEmpty()) {
-            System.out.println("Nama lokasi tidak boleh kosong");
+        // Validasi availability
+        if (!"Status Parkiran: Aktif".equals(availability) && !"Status Parkiran: Nonaktif".equals(availability)) {
+            Toast.showToast((Stage) availabilityCombobox.getScene().getWindow(),
+                    "Silakan pilih ketersediaan dengan benar!");
             return;
         }
 
+        
+
+        boolean isAvailable = "Status Parkiran: Aktif".equals(availabilityCombobox.getValue());
+
+        if (locationName.isEmpty()) {
+            Toast.showToast((Stage) nameField.getScene().getWindow(), "Nama lokasi tidak boleh kosong!");
+            return;
+        }
+
+        
         try (Connection conn = DriverManager.getConnection(Statics.jdbcUrl)) {
             conn.setAutoCommit(false);
+
+            int parking_id = -1;
 
             if (isEditMode && selectedLocationId != -1) {
                 // UPDATE parking
                 String updateParkingSQL = "UPDATE parkings SET name = ?, location_tariff = ?, tariff_id = ?, availability = ? WHERE id = ?";
+                parking_id = selectedLocationId;
                 PreparedStatement psUpdate = conn.prepareStatement(updateParkingSQL);
                 psUpdate.setString(1, locationName);
                 psUpdate.setInt(2, locationTariff);
@@ -370,17 +401,12 @@ public class ParkingController implements MemoryHelper, Initializable {
 
                 psUpdate.executeUpdate();
 
-                // Delete existing capacities
                 String deleteCapacitySQL = "DELETE FROM parking_capacity WHERE parking_id = ?";
                 PreparedStatement psDelete = conn.prepareStatement(deleteCapacitySQL);
                 psDelete.setInt(1, selectedLocationId);
                 psDelete.executeUpdate();
 
-                // Insert new capacities
-                insertParkingCapacities(conn, selectedLocationId);
-
             } else {
-                // INSERT new parking
                 String insertParkingSQL = "INSERT INTO parkings (name, location_tariff, tariff_id, availability) VALUES(?, ?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(insertParkingSQL, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, locationName);
@@ -398,10 +424,15 @@ public class ParkingController implements MemoryHelper, Initializable {
                 if (generatedKeys.next()) {
                     newParkingId = generatedKeys.getInt(1);
                 }
+                parking_id = newParkingId;
 
-                // Insert capacities
-                insertParkingCapacities(conn, newParkingId);
+
             }
+
+                            // Insert capacities
+                if(!insertParkingCapacities(conn, parking_id)){
+                    return;
+                };
 
             conn.commit();
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -413,15 +444,22 @@ public class ParkingController implements MemoryHelper, Initializable {
         }
     }
 
-    private void insertParkingCapacities(Connection conn, int parkingId) throws Exception {
+    private boolean insertParkingCapacities(Connection conn, int parkingId) throws Exception {
+        boolean canSubmit = true;
         for (Map.Entry<String, TextField> entry : vehicleInputFields.entrySet()) {
             String vehicleName = entry.getKey();
             String capacityValueStr = entry.getValue().getText().trim();
-            int capacityValue = 0;
+            int capacityValue = 1;
             try {
                 capacityValue = Integer.parseInt(capacityValueStr);
+                if (capacityValue < 1) {
+                    Toast.showToast((Stage) parkingTable.getScene().getWindow(), "Kapasitas Minimal Satu!");
+                    canSubmit = false;
+                }
             } catch (NumberFormatException ex) {
-                capacityValue = 0;
+                capacityValue = 1;
+                Toast.showToast((Stage) parkingTable.getScene().getWindow(), "Kapasitas harus berupa angka!");
+                canSubmit = false;
             }
 
             PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");
@@ -438,6 +476,7 @@ public class ParkingController implements MemoryHelper, Initializable {
                 psCustom.executeUpdate();
             }
         }
+        return canSubmit;
     }
 
     @Override
@@ -551,14 +590,6 @@ public class ParkingController implements MemoryHelper, Initializable {
             nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
             parkingTable.getColumns().add(nameCol);
 
-            // TableColumn<ParkingModel, Number> locationCapacityCol = new TableColumn<>("Tarif Lokasi");
-            // locationCapacityCol.setCellValueFactory(cellData -> cellData.getValue().locationTariffProperty());
-            // parkingTable.getColumns().add(locationCapacityCol);
-
-            // TableColumn<ParkingModel, String> capacityCol = new TableColumn<>("Nama Tarif");
-            // capacityCol.setCellValueFactory(cellData -> cellData.getValue().tariffNameProperty());
-            // parkingTable.getColumns().add(capacityCol);
-
             for (String vehicleName : vehicleNames) {
                 TableColumn<ParkingModel, Number> dynamicCapCol = new TableColumn<>("Kapasitas " + vehicleName);
                 dynamicCapCol
@@ -600,8 +631,8 @@ public class ParkingController implements MemoryHelper, Initializable {
     }
 
     private void initializeAvailabilityCombobox() {
-        availabilityCombobox.getItems().addAll("Ya", "Tidak");
-        availabilityCombobox.setValue("Ya"); // Default value
+        availabilityCombobox.getItems().addAll("Status Parkiran: Aktif", "Status Parkiran: Nonaktif");
+        availabilityCombobox.setValue("Atur Status Parkiran");
     }
 
     private void loadCapacityInputs() {

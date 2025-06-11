@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.*;
 
-
 import com.kelompok5.ipark.tariff.Tariff;
 import com.kelompok5.ipark.tariff.TariffModel;
 import com.kelompok5.ipark.utils.Connector;
@@ -39,6 +38,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import main.java.com.kelompok5.ipark.utils.Toast;
 
 public class TariffController implements MemoryHelper, Initializable {
 
@@ -326,7 +326,7 @@ public class TariffController implements MemoryHelper, Initializable {
         String tariffName = nameField.getText().trim();
 
         if (tariffName.isEmpty()) {
-            System.out.println("Nama tarif tidak boleh kosong");
+            Toast.showToast((Stage) nameField.getScene().getWindow(), "Nama tarif tidak boleh kosong!");
             return;
         }
 
@@ -354,8 +354,14 @@ public class TariffController implements MemoryHelper, Initializable {
                     int tariffValue = 0;
                     try {
                         tariffValue = Integer.parseInt(tariffValueStr);
+                        if (tariffValue < 0) {
+                            Toast.showToast((Stage) nameField.getScene().getWindow(), "Tarif tidak boleh negatif!");
+                            return;
+                        }
                     } catch (NumberFormatException ex) {
                         tariffValue = 0;
+                        Toast.showToast((Stage) nameField.getScene().getWindow(), "Tarif harus berupa angka!");
+                        return;
                     }
 
                     PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");
@@ -393,8 +399,14 @@ public class TariffController implements MemoryHelper, Initializable {
                     int tariffValue = 0;
                     try {
                         tariffValue = Integer.parseInt(tariffValueStr);
+                        if (tariffValue < 0) {
+                            Toast.showToast((Stage) nameField.getScene().getWindow(), "Tarif tidak boleh negatif!");
+                            return;
+                        }
                     } catch (NumberFormatException ex) {
                         tariffValue = 0;
+                        Toast.showToast((Stage) nameField.getScene().getWindow(), "Tarif harus berupa angka!");
+                        return;
                     }
 
                     PreparedStatement psVehicle = conn.prepareStatement("SELECT id FROM vehicles WHERE name = ?");

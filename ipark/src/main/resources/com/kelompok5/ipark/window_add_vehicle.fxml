@@ -15,7 +15,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.kelompok5.ipark.VehicleController">
    <children>
-      <Label fx:id="secondarylabel" text="Tambahkan Tipe Mobil"/>
+      <Label fx:id="secondarylabel" text="Tambahkan Tipe Kendaraan"/>
 
       <TextField fx:id="nameField" promptText="Nama Kendaraan" prefWidth="300"/>
       <TextField fx:id="typeField" promptText="Tipe Kendaraan" prefWidth="300"/>
