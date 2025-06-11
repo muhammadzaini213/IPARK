@@ -1,4 +1,4 @@
-package main.java.com.kelompok5.ipark.utils;
+package com.kelompok5.ipark.utils;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;

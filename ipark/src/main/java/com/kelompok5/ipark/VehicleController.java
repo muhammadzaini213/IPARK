@@ -18,7 +18,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import main.java.com.kelompok5.ipark.utils.Toast;
+import com.kelompok5.ipark.utils.Toast;
 
 import java.io.IOException;
 import java.net.URL;

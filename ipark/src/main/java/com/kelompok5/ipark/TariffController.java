@@ -38,7 +38,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import main.java.com.kelompok5.ipark.utils.Toast;
+import com.kelompok5.ipark.utils.Toast;
 
 public class TariffController implements MemoryHelper, Initializable {
 
