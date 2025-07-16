@@ -10,23 +10,8 @@ public class MainController {
     }
 
     @FXML
-    private void allTableOption() throws IOException {
-        App.setRoot("scene_alltable");
-    }
-
-    @FXML
     private void parkingOption() throws IOException {
         App.setRoot("scene_parking");
-    }
-
-    @FXML
-    private void parklocsOption() throws IOException {
-        App.setRoot("scene_parklocs");
-    }
-
-    @FXML
-    private void parklocsLocationOption() throws IOException {
-        App.setRoot("scene_parklocs_location");
     }
 
     @FXML

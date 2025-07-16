@@ -30,10 +30,6 @@ public class Car extends Vehicle {
         connector.deleteItem(tableName, id);
     }
 
-    @Override
-    public void parkTo(int id) {
-        // Implementation for parking a car
-    }
 
     @Override
     public String getName() {

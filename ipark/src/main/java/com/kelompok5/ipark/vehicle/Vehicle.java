@@ -7,8 +7,6 @@ public abstract class Vehicle {
 
         public abstract void deleteVehicle(int id);
 
-        public abstract void parkTo(int id);
-
         public abstract String getName();
 
         public abstract String getType();

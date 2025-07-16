@@ -13,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import javafx.scene.control.Alert;
 import com.kelompok5.ipark.utils.Toast;
 
 import com.kelompok5.ipark.parking.Parking;
@@ -452,8 +451,8 @@ public class ParkingController implements MemoryHelper, Initializable {
             int capacityValue = 1;
             try {
                 capacityValue = Integer.parseInt(capacityValueStr);
-                if (capacityValue < 1) {
-                    Toast.showToast((Stage) parkingTable.getScene().getWindow(), "Kapasitas Minimal Satu!");
+                if (capacityValue < 0) {
+                    Toast.showToast((Stage) parkingTable.getScene().getWindow(), "Kapasitas Tidak Boleh Negatif!");
                     canSubmit = false;
                 }
             } catch (NumberFormatException ex) {

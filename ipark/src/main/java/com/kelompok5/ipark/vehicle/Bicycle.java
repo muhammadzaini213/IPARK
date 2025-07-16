@@ -32,11 +32,6 @@ public class Bicycle extends Vehicle {
     }
 
     @Override
-    public void parkTo(int id) {
-        throw new UnsupportedOperationException("Unimplemented method 'parkTo'");
-    }
-
-    @Override
     public String getName() {
         return name;
     }

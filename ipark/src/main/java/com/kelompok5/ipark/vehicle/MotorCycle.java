@@ -31,11 +31,6 @@ public class MotorCycle extends Vehicle {
     }
 
     @Override
-    public void parkTo(int id) {
-        // Implementation for parking a motorcycle
-    }
-
-    @Override
     public String getName() {
         return name;
     }

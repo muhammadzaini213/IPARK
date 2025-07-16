@@ -55,8 +55,4 @@ public class CustomVehicle {
         }
         }
 
-        public void parkTo(int id) {
-            throw new UnsupportedOperationException("Unimplemented method 'parkTo'");
-        }
-
     }

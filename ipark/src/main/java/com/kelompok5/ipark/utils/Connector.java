@@ -17,6 +17,7 @@ public class Connector {
         return connection;
     }
 
+
     public void checkTableIfNotExists(String tableName, String structure, String unique) throws SQLException {
         String checkSql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
         try (PreparedStatement stmt = connector().prepareStatement(checkSql)) {
